@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">  
+  <parent> 
+    <artifactId>dey39reggie2_parent</artifactId>  
+    <groupId>com.itheima</groupId>  
+    <version>0.0.1-SNAPSHOT</version> 
+  </parent>  
+  <modelVersion>4.0.0</modelVersion>  
+  <artifactId>reggie_dao</artifactId>  
+  <packaging>war</packaging>
+  <dependencies> 
+    <!--         连数据-->  
+    <dependency> 
+      <groupId>com.itheima</groupId>  
+      <artifactId>reggie_model</artifactId>  
+      <version>0.0.1-SNAPSHOT</version> 
+    </dependency>  
+    <dependency> 
+      <groupId>com.baomidou</groupId>  
+      <artifactId>mybatis-plus-boot-starter</artifactId>  
+      <version>3.4.0</version> 
+    </dependency>  
+    <dependency> 
+      <groupId>mysql</groupId>  
+      <artifactId>mysql-connector-java</artifactId> 
+    </dependency> 
+  </dependencies> 
+</project>

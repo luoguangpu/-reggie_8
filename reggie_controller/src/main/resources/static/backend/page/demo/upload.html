@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文件上传</title>
+  <!-- 引入样式 -->
+  <link rel="stylesheet" href="../../plugins/element-ui/index.css" />
+  <link rel="stylesheet" href="../../styles/common.css" />
+  <link rel="stylesheet" href="../../styles/page.css" />
+</head>
+<body>
+   <div class="addBrand-container" id="food-add-app">
+    <div class="container">
+
+
+       <!-- action: 表示提交到哪里去
+        show-file-list : 是否显示上传的文件列表
+        on-success : 表示上传成功之后调用的方法
+        before-upload : 上传之前调用的方法
+
+        img标签：  用来显示图片的。
+            v-if : 用于控制这个标签是否显示，显示与否取决于imageUrl有没有值
+                imageUrl 需要在handleAvatarSuccess方法里面指定，它的值是由服务器返回的。
+                    也就是刚才上传图片成功之后返回的图片地址 | 图片的名称-->
+        <el-upload class="avatar-uploader"
+                action="/common/upload"
+                :show-file-list="false"
+                :on-success="handleAvatarSuccess"
+                :before-upload="beforeUpload"
+                ref="upload">
+
+            <img v-if="imageUrl" :src="imageUrl" class="avatar"></img>
+            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+        </el-upload>
+    </div>
+  </div>
+    <!-- 开发环境版本，包含了有帮助的命令行警告 -->
+    <script src="../../plugins/vue/vue.js"></script>
+    <!-- 引入组件库 -->
+    <script src="../../plugins/element-ui/index.js"></script>
+    <!-- 引入axios -->
+    <script src="../../plugins/axios/axios.min.js"></script>
+    <script src="../../js/index.js"></script>
+    <script>
+      new Vue({
+        el: '#food-add-app',
+        data() {
+          return {
+            imageUrl: ''
+          }
+        },
+        methods: {
+
+            //上传成功之后调用的方法，3个参数：
+            // response： 后台回来的响应数据 {code: 1, msg: null, data: 'daf4dc1ce9384e23939d7aa6262eb0e6.jpg', map: {…}}
+            // file :上传的文件
+            //fileList:上传的文件列表
+          handleAvatarSuccess (response, file, fileList) {
+              console.log("------------------1-------------");
+              console.log(response);
+              console.log(file);
+              console.log(fileList);
+              console.log("------------------2-------------");
+
+              this.imageUrl = "/common/download/" + response.data
+          },
+          beforeUpload (file) {
+            if(file){
+              const suffix = file.name.split('.')[1]
+              const size = file.size / 1024 / 1024 < 2
+              if(['png','jpeg','jpg'].indexOf(suffix) < 0){
+                this.$message.error('上传图片只支持 png、jpeg、jpg 格式！')
+                this.$refs.upload.clearFiles()
+                return false
+              }
+              if(!size){
+                this.$message.error('上传文件大小不能超过 2MB!')
+                return false
+              }
+              return file
+            }
+          }
+        }
+      })
+    </script>
+</body>
+</html>
