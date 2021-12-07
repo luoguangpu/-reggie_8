@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>瑞吉外卖管理端</title>
+    <link rel="shortcut icon" href="../../favicon.ico">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../../plugins/element-ui/index.css"/>
+    <link rel="stylesheet" href="../../styles/common.css">
+    <link rel="stylesheet" href="../../styles/login.css">
+    <link rel="stylesheet" href="../../styles/icon/iconfont.css"/>
+    <style>
+        .body {
+            min-width: 1366px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="login" id="login-app">
+    <div class="login-box">
+        <img src="../../images/login/login-l.png" alt="">
+        <div class="login-form">
+            <el-form ref="loginForm" :model="loginForm" :rules="loginRules">
+                <div class="login-form-title">
+                    <img src="../../images/login/logo.png" style="width:139px;height:42px;" alt=""/>
+                </div>
+                <el-form-item prop="username">
+                    <el-input v-model="loginForm.username" type="text" auto-complete="off" placeholder="账号"
+                              maxlength="20"
+                              prefix-icon="iconfont icon-user"/>
+                </el-form-item>
+                <el-form-item prop="password">
+                    <el-input v-model="loginForm.password" type="password" placeholder="密码"
+                              prefix-icon="iconfont icon-lock" maxlength="20"
+                              @keyup.enter.native="handleLogin"/>
+                </el-form-item>
+                <el-form-item style="width:100%;">
+                    <el-button :loading="loading" class="login-btn" size="medium" type="primary" style="width:100%;"
+                               @click.native.prevent="handleLogin">
+                        <span v-if="!loading">登录</span>
+                        <span v-else>登录中...</span>
+                    </el-button>
+                </el-form-item>
+            </el-form>
+        </div>
+    </div>
+</div>
+
+<!-- 开发环境版本，包含了有帮助的命令行警告 -->
+<script src="../../plugins/vue/vue.js"></script>
+<!-- 引入组件库 -->
+<script src="../../plugins/element-ui/index.js"></script>
+<!-- 引入axios -->
+<script src="../../plugins/axios/axios.min.js"></script>
+<script src="../../js/request.js"></script>
+<script src="../../js/validate.js"></script>
+<script src="../../api/login.js"></script>
+
+<script>
+    new Vue({
+        el: '#login-app',
+        data() {
+            return {
+                loginForm: {
+                    username: 'admin',
+                    password: '123456'
+                },
+                loading: false
+            }
+        },
+        computed: {
+            loginRules() {
+                const validateUsername = (rule, value, callback) => {
+                    if (value.length < 1) {
+                        callback(new Error('请输入用户名'))
+                    } else {
+                        callback()
+                    }
+                }
+                const validatePassword = (rule, value, callback) => {
+                    if (value.length < 6) {
+                        callback(new Error('密码必须在6位以上'))
+                    } else {
+                        callback()
+                    }
+                }
+                return {
+                    'username': [{'validator': validateUsername, 'trigger': 'blur'}],
+                    'password': [{'validator': validatePassword, 'trigger': 'blur'}]
+                }
+            }
+        },
+        created() {
+        },
+        methods: {
+
+            //处理登录功能
+            handleLogin(){
+                //1. 先对表单进行校验
+                this.$refs.loginForm.validate((valid)=>{
+                    //2. 对校验结果进行判定
+                    if(valid){
+                        //3. 获取表单的数据
+
+                        //4. 发起请求
+                        axios.post("/employee/login" , this.loginForm).then(response=>{
+                            console.log("登录的结果：。。。");
+                            console.log(response);
+
+                            //判定结果
+                            if(response.data.code == 1){
+                                this.$message.success("登录成功")
+
+                                //4.1 把用户名保存到浏览器的内存中
+                                sessionStorage.setItem("username", this . loginForm.username );
+
+                                //4.2 跳转到首页
+                                location.href="../../index.html";
+
+                            }else{
+                                this.$message.error(response.data.msg);
+                            }
+                        })
+
+                        // get请求，不管怎么写，使用参数位置来写，还是地址栏拼接也好，最终呈现出来的结果
+                        // 一定是把数据拼接到地址栏上！
+
+                        //axios.get("/employee/login2", {params:this.loginForm});
+                        //如果非要使用RestFul的风格去传递数据，需要在后面拼接上数据的json字符串
+                        //axios.get("/employee/login2/"+JSON.stringify(this.loginForm));
+                    }
+                });
+
+            }
+
+           /* // 处理登录的方法
+            async handleLogin() {
+
+                //this.$refs.loginForm 找到表单
+                // this.$refs.loginForm.validate 找到表单，然后执行表单的校验工作
+                // (valid)=>{}  校验之后，执行大括号里面的内容 ，valid就是校验的结果： true , false
+                // 校验成功之后，执行if的代码
+                this.$refs.loginForm.validate(async (valid) => {
+                    if (valid) {
+                        this.loading = true
+                        //发起请求，去登录，得到响应的结果对象： res
+                        // res :  看上去表示的是从后台写出来的数据。 {code:10086, data:null , msg:"登录成功"}
+                        let res = await loginApi(this.loginForm)
+
+                        //如果登录成功
+                        if (String(res.code) === '1') {
+                            //把数据保存到硬盘上。
+                            //把用户名保存到硬盘上， 关闭浏览器，下次打开浏览器，还会有。
+                            localStorage.setItem("username", this.loginForm.username);
+
+                            //把数据保存到浏览器的内存中 ，关闭浏览器之后，就没有了
+                            sessionStorage.setItem("address", "北京");
+
+                            //localStorage.setItem('userInfo',JSON.stringify(res.data))
+
+                            //跳转到首页
+                            window.location.href = '/backend/index.html'
+                        } else {
+                            this.$message.error(res.msg)
+                            this.loading = false
+                        }
+                    }
+                })
+            }*/
+        }
+    })
+</script>
+</body>
+
+</html>
